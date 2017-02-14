@@ -95,7 +95,7 @@ function RoonApi(o) {
  * @param {object[]} [services.provided_services] - A list of services which this extension provides to the Roon Core.
  */
 RoonApi.prototype.init_services = function(o) {
-    if (!Array.isArray(o.required_services)) o.required_services = []; 
+    if (!Array.isArray(o.required_services)) o.required_services = [];
     if (!Array.isArray(o.optional_services)) o.optional_services = [];
     if (!Array.isArray(o.provided_services)) o.provided_services = [];
 
@@ -204,7 +204,7 @@ if (typeof(window) == "undefined" || typeof(nw) !== "undefined") {
                 config = JSON.parse(content);
             } catch (e) {
                 config = {};
-            } 
+            }
             if (v === undefined || v === null)
                 delete(config[k]);
             else
@@ -282,7 +282,7 @@ RoonApi.prototype.register_service = function(svcname, spec) {
     this._service_request_handlers[svcname] = req => {
 	// make sure the req's request name is something we know about
         if (req) {
-            let method = spec.methods[req.msg.name]; 
+            let method = spec.methods[req.msg.name];
             if (method) {
                 method(req);
             } else {
@@ -328,7 +328,7 @@ RoonApi.prototype.connect = function() {
 			     if (!msg) return;
 			     let s = this.get_persisted_state();
 			     if (s.tokens && s.tokens[body.core_id]) this.extension_reginfo.token = s.tokens[body.core_id];
-			
+
 			     ret.moo.send_request("com.roonlabs.registry:1/register", this.extension_reginfo,
 					      (msg, body) => {
 						  if (!msg) { // lost connection
@@ -376,7 +376,9 @@ RoonApi.prototype.connect = function() {
         var body = msg.body;
         delete(msg.body);
         if (msg.verb == "REQUEST") {
-            console.log('<-', msg.verb, msg.request_id, msg.service + "/" +  msg.name, body ? JSON.stringify(body) : "");
+            if (msg.service != "com.roonlabs.ping:1") {
+                console.log('<-', msg.verb, msg.request_id, msg.service + "/" +  msg.name, body ? JSON.stringify(body) : "");
+            }
             var req = new MooMessage(ret.moo, msg, body);
             var handler = this._service_request_handlers[msg.service];
             if (handler)
@@ -384,7 +386,9 @@ RoonApi.prototype.connect = function() {
             else
                 req.send_complete("InvalidRequest", { error: "unknown service: " + msg.service });
         } else {
-            console.log('<-', msg.verb, msg.request_id, msg.name, body ? JSON.stringify(body) : "");
+            if (msg.service != "com.roonlabs.ping:1") {
+                console.log('<-', msg.verb, msg.request_id, msg.name, body ? JSON.stringify(body) : "");
+            }
             ret.moo.handle_response(msg, body);
         }
     };
