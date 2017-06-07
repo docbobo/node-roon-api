@@ -389,8 +389,8 @@ RoonApi.prototype.connect = function() {
             else
                 req.send_complete("InvalidRequest", { error: "unknown service: " + msg.service });
         } else {
-            if (ignoredEvents[msg.reuest_id]) {
-                delete ignoredEvents[msg.reuest_id];
+            if (ignoredEvents[msg.request_id]) {
+                delete ignoredEvents[msg.request_id];
             } else {
                 console.log('<-', msg.verb, msg.request_id, msg.name, body ? JSON.stringify(body) : "");
             }
