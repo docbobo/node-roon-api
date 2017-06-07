@@ -368,7 +368,6 @@ RoonApi.prototype.connect = function() {
         ret.ws.close();
     };
 
-    var ignoredEvents = {};
     ret.ws.onmessage = event => {
 //        console.log("GOTMSG");
 	if (!ret.moo) return;
@@ -377,9 +376,7 @@ RoonApi.prototype.connect = function() {
         var body = msg.body;
         delete(msg.body);
         if (msg.verb == "REQUEST") {
-            if (msg.service == "com.roonlabs.ping:1") {
-                ignoredEvents[msg.request_id] = true;
-            } else {
+            if (msg.service != "com.roonlabs.ping:1") {
                 console.log('<-', msg.verb, msg.request_id, msg.service + "/" +  msg.name, body ? JSON.stringify(body) : "");
             }
             var req = new MooMessage(ret.moo, msg, body);
@@ -389,9 +386,7 @@ RoonApi.prototype.connect = function() {
             else
                 req.send_complete("InvalidRequest", { error: "unknown service: " + msg.service });
         } else {
-            if (ignoredEvents[msg.request_id]) {
-                delete ignoredEvents[msg.request_id];
-            } else {
+            if (msg.service != "com.roonlabs.ping:1") {
                 console.log('<-', msg.verb, msg.request_id, msg.name, body ? JSON.stringify(body) : "");
             }
             ret.moo.handle_response(msg, body);
